@@ -33,6 +33,8 @@ The following list data structures are contained in this repository.
     * Iterative approach
     * Recursive approach
  
+ ## Tree Data Structures
+ 
  ## Matrix
  
  ## Sorting Algorithms
