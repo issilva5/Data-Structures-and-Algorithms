@@ -1,5 +1,8 @@
 package tree;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 	
 	/**
@@ -30,7 +33,7 @@ public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 				
 				if (node.getLeft() == null) {
 					
-					node.setLeft(new BinaryNode<T>(element));
+					node.setLeft(new BinaryNode<T>(element, node));
 					
 				} else {
 					
@@ -42,7 +45,7 @@ public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 				
 				if (node.getRight() == null) {
 					
-					node.setRight(new BinaryNode<T>(element));
+					node.setRight(new BinaryNode<T>(element, node));
 					
 				} else {
 					
@@ -62,13 +65,23 @@ public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 	@Override
 	public boolean contains(T element) {
 		
-		return this.contains(element, this.root);
+		return this.search(element, this.root) != null;
 		
 	}
-
-	private boolean contains(T element, BinaryNode<T> node) {
+	
+	/**
+	 * @see tree.BinaryTree#search(Object)
+	 */
+	@Override
+	public BinaryNode<T> search(T element) {
 		
-		boolean isIn = false;
+		return this.search(element, this.root);
+		
+	}
+	
+	private BinaryNode<T> search(T element, BinaryNode<T> node) {
+		
+		BinaryNode<T> found = null;
 		
 		if (node != null) {
 			
@@ -76,21 +89,21 @@ public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 			
 			if (compareValue == 0) {
 				
-				isIn = true;
+				found = node;
 				
 			} else if (compareValue < 0) {
 				
-				isIn = this.contains(element, node.getLeft());
+				found = this.search(element, node.getLeft());
 				
 			} else {
 				
-				isIn = this.contains(element, node.getRight());
+				found = this.search(element, node.getRight());
 				
 			}
 			
 		}
 		
-		return isIn;
+		return found;
 		
 	}
 	
@@ -99,35 +112,225 @@ public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 	 */
 	@Override
 	public void remove(T element) {
-		// TODO Auto-generated method stub
+		
+		BinaryNode<T> node = this.search(element);
+		
+		if (node != null) {
+			
+			if (node.exitDegree() == 0) {
+				
+				if (node.getParent() == null) {
+					
+					this.root = null;
+					
+				} else {
+				
+					if (node.getData().compareTo(node.getParent().getData()) < 0) {
+						node.getParent().setLeft(null);
+					} else {
+						node.getParent().setRight(null);
+					}
+					
+				}
+				
+			} else if (node.exitDegree() == 1) {
+				
+				if (node.getParent() == null) {
+					
+					if (node.getLeft() != null) {
+						
+						node.getLeft().setParent(null);
+						this.root = node.getLeft();
+						
+					} else {
+						
+						node.getRight().setParent(null);
+						this.root = node.getRight();
+						
+					}
+					
+				} else {
+					
+					
+					if (node.getData().compareTo(node.getParent().getData()) < 0) {
+						
+						if (node.getLeft() != null) {
+							
+							node.getParent().setLeft(node.getLeft());
+							node.getLeft().setParent(node.getParent());
+							
+						} else {
+							
+							node.getParent().setLeft(node.getRight());
+							node.getRight().setParent(node.getParent());
+							
+						}
+						
+					} else {
+						
+						if (node.getLeft() != null) {
+							
+							node.getParent().setRight(node.getLeft());
+							node.getLeft().setParent(node.getParent());
+							
+						} else {
+							
+							node.getParent().setRight(node.getRight());
+							node.getRight().setParent(node.getParent());
+							
+						}
+						
+					}
+					
+				}
+				
+			} else {
+				
+				BinaryNode<T> suc = this.successor(element);
+				
+				node.setData(suc.getData());
+				
+				remove(suc.getData());
+				
+			}
+			
+		}
+		
+		
+	}
+	
+	/**
+	 * @see tree.BinaryTree#predecessor(Object)
+	 */
+	@Override
+	public BinaryNode<T> predecessor(T data) {
+		
+		BinaryNode<T> node = this.search(data);
+		
+		if (node != null) {
+			
+			if (node.getLeft() != null) {
+				
+				return max(node.getLeft());
+			
+			} else {
+				
+				while (node != null && node.getParent().getData().compareTo(node.getData()) > 0) {
+
+					node = node.getParent();
+					
+				}
+				
+				return node.getParent();
+				
+			}
+			
+		}
+		
+		return node;
+		
+	}
+	
+	/**
+	 * @see tree.BinaryTree#successor(Object)
+	 */
+	@Override
+	public BinaryNode<T> successor(T data) {
+		
+		BinaryNode<T> node = this.search(data);
+		
+		if (node != null) {
+			
+			if (node.getRight() != null) {
+				
+				return min(node.getRight());
+			
+			} else {
+				
+				while (node != null && node.getParent().getData().compareTo(node.getData()) < 0) {
+
+					node = node.getParent();
+					
+				}
+				
+				return node.getParent();
+				
+			}
+			
+		}
+		
+		return node;
+
 		
 	}
 	
 	/**
 	 * @see tree.BinaryTree#inOrderArray()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public T[] inOrderArray() {
-		// TODO Auto-generated method stub
-		return null;
+		List<T> list = new ArrayList<>();
+		inOrderArray(this.root, list);
+		return (T[]) list.toArray();
 	}
 	
+	private void inOrderArray(BinaryNode<T> node, List<T> list) {
+		
+		if (node.getLeft() != null)
+			inOrderArray(node.getLeft(), list);
+		
+		list.add(node.getData());
+		
+		if (node.getRight() != null)
+			inOrderArray(node.getRight(), list);
+
+	}
+
 	/**
 	 * @see tree.BinaryTree#preOrderArray()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public T[] preOrderArray() {
-		// TODO Auto-generated method stub
-		return null;
+		List<T> list = new ArrayList<>();
+		preOrderArray(this.root, list);
+		return (T[]) list.toArray();
+	}
+	
+	private void preOrderArray(BinaryNode<T> node, List<T> list) {
+		
+		list.add(node.getData());
+		
+		if (node.getLeft() != null)
+			inOrderArray(node.getLeft(), list);
+		
+		if (node.getRight() != null)
+			inOrderArray(node.getRight(), list);
+
 	}
 	
 	/**
 	 * @see tree.BinaryTree#postOrderArray()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public T[] postOrderArray() {
-		// TODO Auto-generated method stub
-		return null;
+		List<T> list = new ArrayList<>();
+		postOrderArray(this.root, list);
+		return (T[]) list.toArray();
+	}
+	
+	private void postOrderArray(BinaryNode<T> node, List<T> list) {
+		
+		if (node.getLeft() != null)
+			inOrderArray(node.getLeft(), list);
+		
+		if (node.getRight() != null)
+			inOrderArray(node.getRight(), list);
+		
+		list.add(node.getData());
+
 	}
 	
 	/**
@@ -177,15 +380,15 @@ public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 			
 		}
 		
-		return this.min(this.root);
+		return this.min(this.root).getData();
 		
 	}
 	
-	private T min(BinaryNode<T> node) {
+	private BinaryNode<T> min(BinaryNode<T> node) {
 		
 		if (node.getLeft() == null) {
 			
-			return node.getData();
+			return node;
 			
 		}
 		
@@ -207,19 +410,19 @@ public class BinarySearchTree<T extends Comparable<T> > extends BinaryTree<T> {
 			
 		}
 		
-		return this.max(this.root);
+		return this.max(this.root).getData();
 		
 	}
 	
-	private T max(BinaryNode<T> node) {
+	private BinaryNode<T> max(BinaryNode<T> node) {
 		
 		if (node.getRight() == null) {
 			
-			return node.getData();
+			return node;
 			
 		}
 		
-		return this.min(node.getRight());
+		return this.max(node.getRight());
 		
 	}
 	

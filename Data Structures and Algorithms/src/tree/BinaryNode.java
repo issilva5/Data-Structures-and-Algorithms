@@ -18,6 +18,11 @@ public class BinaryNode<T> implements Node<T> {
 	private BinaryNode<T> right;
 	
 	/**
+	 * Parent node.
+	 */
+	private BinaryNode<T> parent;
+	
+	/**
 	 * Create a new node.
 	 * 
 	 * @param data
@@ -27,6 +32,20 @@ public class BinaryNode<T> implements Node<T> {
 		this.data = data;
 	}
 	
+	/**
+	 * Create a new node.
+	 * 
+	 * @param data
+	 * 		Node's value.
+	 * 
+	 * @param parent
+	 * 		Node's parent.
+	 */
+	public BinaryNode(T data, BinaryNode<T> parent) {
+		this.data = data;
+		this.parent = parent;
+	}
+
 	/**
 	 * @see tree.Node#exitDegree()
 	 */
@@ -59,6 +78,14 @@ public class BinaryNode<T> implements Node<T> {
 
 	public void setRight(BinaryNode<T> right) {
 		this.right = right;
+	}
+	
+	public BinaryNode<T> getParent() {
+		return this.parent;
+	}
+
+	public void setParent(BinaryNode<T> parent) {
+		this.parent = parent;
 	}
 	
 }

@@ -87,4 +87,36 @@ public abstract class BinaryTree<T> implements Tree<T> {
 	 */
 	public abstract int height();
 	
+	/**
+	 * Gives the node that has the value successor of the parameter data.
+	 * 
+	 * @param data
+	 * 		Value which successor has to be obtained.
+	 * 
+	 * @return
+	 * 		Node of the successor or null, when there's no successor or the data is not in the tree.
+	 */
+	public abstract BinaryNode<T> successor(T data);
+	
+	/**
+	 * Gives the node that has the value predecessor of the parameter data.
+	 * 
+	 * @param data
+	 * 		Value which predecessor has to be obtained.
+	 * 
+	 * @return
+	 * 		Node of the predecessor or null, when there's no predecessor or the data is not in the tree.
+	 */
+	public abstract BinaryNode<T> predecessor(T data);
+	
+	/**
+	 * Verify if an element exits in the tree.
+	 * 
+	 * @param element
+	 * 		Element to be verified.
+	 * 
+	 * @return
+	 * 		The element's node if the element is in the tree and null otherwise.
+	 */
+	public abstract BinaryNode<T> search(T element);
 }
